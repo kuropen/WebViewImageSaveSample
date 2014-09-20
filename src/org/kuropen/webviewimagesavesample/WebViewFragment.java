@@ -84,6 +84,8 @@ public class WebViewFragment extends Fragment implements OnLongClickListener {
 			//この両者の場合、Extraはいずれも画像のURLとなる
 			String imageUrl = hr.getExtra();
 			
+			// 本来であれば、ここでダウンロードの確認を表示してあげる必要がある
+			
 			// 保存先ディレクトリ
 			File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), getFilenameFromURL(imageUrl));
 			
@@ -96,10 +98,7 @@ public class WebViewFragment extends Fragment implements OnLongClickListener {
 			request.setTitle(getFilenameFromURL(imageUrl) + "をダウンロードしています。");
 			downloadManager.enqueue(request);
 			
-			// 本来であれば、ここでダウンロードの確認を表示してあげる必要がある
-			
 			Toast.makeText(getActivity(), "ダウンロードを開始します…", Toast.LENGTH_LONG).show();
-			
 		}
 		
 		return false;
