@@ -1,9 +1,11 @@
 package org.kuropen.webviewimagesavesample;
 
 import java.io.File;
-import java.io.ObjectInputStream.GetField;
-import java.util.UUID;
-
+import java.net.URL;
+import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
@@ -23,7 +25,7 @@ public class WebViewFragment extends Fragment implements OnLongClickListener {
 
 	private WebView mWebView;
 
-	@Override
+	@SuppressLint("SetJavaScriptEnabled") @Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_main, container,
@@ -83,41 +85,37 @@ public class WebViewFragment extends Fragment implements OnLongClickListener {
 			String imageUrl = hr.getExtra();
 			
 			// 保存先ディレクトリ
-			File dir = getTargetDirectory();
+			File file = new File(getActivity().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), getFilenameFromURL(imageUrl));
+			
+			DownloadManager downloadManager = (DownloadManager) getActivity().getSystemService(Context.DOWNLOAD_SERVICE);
+			DownloadManager.Request request = new DownloadManager.Request(Uri.parse(imageUrl));
+			request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+			request.setDestinationUri(Uri.fromFile(file));
+			request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+			request.setTitle("WebViewImageSaveSample");
+			request.setTitle(getFilenameFromURL(imageUrl) + "をダウンロードしています。");
+			downloadManager.enqueue(request);
 			
 			// 本来であれば、ここでダウンロードの確認を表示してあげる必要がある
 			
 			Toast.makeText(getActivity(), "ダウンロードを開始します…", Toast.LENGTH_LONG).show();
 			
-			new ImageDownloadTask(getActivity()).execute(imageUrl, dir.getAbsolutePath());
 		}
 		
 		return false;
 	}
 	
-	private File getTargetDirectory () {
-		File dir = null;
-		
-		try {
-			if (readySdcard()) {
-				dir = new File(Environment.getExternalStorageDirectory().getPath() + "/WebViewImageSaveSample/");
-				if (!dir.exists()) {
-					if (!dir.mkdirs()) {
-						throw new SDCardFailureException();
-					}
-				}
-			}else{
-				throw new SDCardFailureException();
-			}
-		}catch(SDCardFailureException e){
-			dir = getActivity().getFilesDir();
-		}
-		return dir;
+	protected String getFilenameFromURL(URL url) {
+		return getFilenameFromURL(url.getFile());
 	}
 	
-	private boolean readySdcard() {
-		String status = Environment.getExternalStorageState();
-		return status.equals(Environment.MEDIA_MOUNTED);
+	protected String getFilenameFromURL(String url) {
+		String[] p = url.split("/");
+		String s = p[p.length - 1];
+		if (s.indexOf("?") > -1) {
+			return s.substring(0, s.indexOf("?"));
+		}
+		return s;
 	}
 
 }
