@@ -94,11 +94,10 @@ public class WebViewFragment extends Fragment implements OnLongClickListener {
 			request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
 			request.setDestinationUri(Uri.fromFile(file));
 			request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-			request.setTitle("WebViewImageSaveSample");
-			request.setTitle(getFilenameFromURL(imageUrl) + "をダウンロードしています。");
 			downloadManager.enqueue(request);
 			
 			Toast.makeText(getActivity(), "ダウンロードを開始します…", Toast.LENGTH_LONG).show();
+			return true;
 		}
 		
 		return false;
