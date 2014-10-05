@@ -84,6 +84,11 @@ public class WebViewFragment extends Fragment implements OnLongClickListener {
 			//この両者の場合、Extraはいずれも画像のURLとなる
 			String imageUrl = hr.getExtra();
 			
+			// httpで始まらないURLはダウンロード対象にできないので、無視する
+			if (!imageUrl.startsWith("http")) {
+				return false;
+			}
+			
 			// 本来であれば、ここでダウンロードの確認を表示してあげる必要がある
 			
 			// 保存先ディレクトリ
